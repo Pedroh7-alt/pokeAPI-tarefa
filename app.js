@@ -1,14 +1,71 @@
-async function buscarPokemon() {
+ // importa o módulo que capturar e processa fluxos de texto de entrada e saida
+const readline = require('readline');
 
-const resposta = await fetch("https://pokeapi.co/api/v2/pokemon/pikachu");
-const dados = await resposta.json();
+async function buscarPokemon(nome) {
 
-console.log(dados.name)
-console.log(dados.id)
-console.log(dados.height)
-console.log(dados.weight)
-console.log(dados.types)
-    
-}
+    if(!nome) {
+        console.log("Pokédex: Por favor digite o ID ou o nome do Pokémon.");
+        return;
+    }
 
-buscarPokemon();
+    try{
+
+        
+        const resposta = await fetch(`https://pokeapi.co/api/v2/pokemon/${nome}`);
+        if (!resposta.ok) {
+            console.log("POkédex: Pokémon não encontrado.");
+            return;
+        }
+        
+        const dados = await resposta.json();
+        
+        //busca os tipos do pokemon 
+        const tipos = dados.types.map(item => item.type.name).join(", ");
+        
+        //busca as habilidades do pokemon
+        const habilidades = dados.abilities.map(item => item.ability.name).join(", ");
+        
+        //busca o movimento do pokemon 
+        const movimentos = dados.moves.slice(0, 4).map(item => item.move.name).join(", ");
+        
+        console.log(("ID:"), dados.id);
+        console.log(("Nome:"), dados.name);
+        console.log(("Tipo(s):"), tipos);
+        console.log(("Habilidade(s): "), habilidades);
+        console.log(("Movimentos:"), movimentos);
+        console.log(("Altura:"), dados.height);
+        console.log(("Peso:"), dados.weight);
+        
+        
+    } catch (erro) {
+        console.log("Pokédex: Falha ao se comunicar com a API", erro.message);
+    }
+};
+
+//cria uma ponte de comunicação
+const rl = readline.createInterface({
+    input: process.stdin,// é tipo o scanf do C
+    output: process.stdout// é tipo o printf do C
+});
+
+
+function iniciarMenu(){
+
+    //exibe a mensagem e faz o script pausar até responder
+    process.stdout.write("Pokédex: Insira o nome do pokémon para buscar suas estatísticas ou 'sair' para encerrar: ");
+    rl.question("", async(nome) => {
+        const nomeFormatado = nome.trim().toLowerCase();
+        await buscarPokemon(nomeFormatado);
+        
+        if (nomeFormatado === 'sair'){
+            console.log("Encerrando a Pokédex. Até mais!");
+            rl.close();
+            return;
+        }
+    }
+
+    await buscarPokemon(nomeFormatado);
+    iniciarMenu(); //inicia a pokedex novamente
+});
+
+iniciarMenu()
