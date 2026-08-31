@@ -1,19 +1,15 @@
  // importa o módulo que capturar e processa fluxos de texto de entrada e saida
 const readline = require('readline');
-
 async function buscarPokemon(nome) {
 
-    if(!nome) {
-        console.log("Pokédex: Por favor digite o ID ou o nome do Pokémon.");
-        return;
-    }
+    
 
     try{
 
         
         const resposta = await fetch(`https://pokeapi.co/api/v2/pokemon/${nome}`);
         if (!resposta.ok) {
-            console.log("POkédex: Pokémon não encontrado.");
+            console.log("\nPokédex: Pokémon não encontrado.");
             return;
         }
         
@@ -28,7 +24,7 @@ async function buscarPokemon(nome) {
         //busca o movimento do pokemon 
         const movimentos = dados.moves.slice(0, 4).map(item => item.move.name).join(", ");
         
-        console.log(("ID:"), dados.id);
+        console.log(("\nID:"), dados.id);
         console.log(("Nome:"), dados.name);
         console.log(("Tipo(s):"), tipos);
         console.log(("Habilidade(s): "), habilidades);
@@ -38,9 +34,9 @@ async function buscarPokemon(nome) {
         
         
     } catch (erro) {
-        console.log("Pokédex: Falha ao se comunicar com a API", erro.message);
+        console.log("\nPokédex: Falha ao se comunicar com a API", erro.message);
     }
-};
+}
 
 //cria uma ponte de comunicação
 const rl = readline.createInterface({
@@ -49,23 +45,32 @@ const rl = readline.createInterface({
 });
 
 
-function iniciarMenu(){
+        function iniciarMenu(){
 
-    //exibe a mensagem e faz o script pausar até responder
-    process.stdout.write("Pokédex: Insira o nome do pokémon para buscar suas estatísticas ou 'sair' para encerrar: ");
-    rl.question("", async(nome) => {
-        const nomeFormatado = nome.trim().toLowerCase();
-        await buscarPokemon(nomeFormatado);
-        
-        if (nomeFormatado === 'sair'){
-            console.log("Encerrando a Pokédex. Até mais!");
-            rl.close();
-            return;
-        }
+            console.log("Pokédex: Insira o nome do pokémon para buscar suas estatísticas ou 'sair' para encerrar: ");
+            
+            rl.question("", async(nome) => {
+   
+
+                const nomeFormatado = nome.trim().toLowerCase();
+                
+                if (nomeFormatado === 'sair'){
+                    console.log("Encerrando a Pokédex. Até mais!");
+                    rl.close();
+                    return
+                }
+
+
+                if(!nome) {
+        console.log("Pokédex: Por favor digite o ID ou o nome do Pokémon.");
+        return;
     }
 
-    await buscarPokemon(nomeFormatado);
-    iniciarMenu(); //inicia a pokedex novamente
-});
+                await buscarPokemon(nomeFormatado);       
+                iniciarMenu()
+            })
 
-iniciarMenu()
+            
+        }
+
+        iniciarMenu()
